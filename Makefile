@@ -5,10 +5,6 @@ create_env:
 	pip install -r requirements.txt
 
 
-# Run the agent
-run_agent:
-	python -m agent.main
-
 # Run the streamlit application
 run_agent_ui:
 	streamlit run agent/app.py
