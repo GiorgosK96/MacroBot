@@ -99,15 +99,14 @@ class MacroeconomicsNodes:
                 start_time = time.time()
                 
                 try:
-                    if conversation_history:
-                        # Χρήση πλήρους ιστορικού συνομιλίας για RAG
-                        query_with_context = f"""
-                    Πλήρες ιστορικό συνομιλίας:
-                    {chr(10).join(conversation_history)}
+                    # Για το FAISS query: μόνο user μηνύματα (όχι bot απαντήσεις)
+                    user_history = [f"User: {msg.content}" for msg in state.messages[:-1]
+                                    if isinstance(msg, HumanMessage)]
 
-                    Τρέχουσα ερώτηση: {last_user_message}
-                    """
-                        logger.info(f"Using query with context ({len(conversation_history)} messages)")
+                    if user_history:
+                        query_with_context = f"""{chr(10).join(user_history)}
+Τρέχουσα ερώτηση: {last_user_message}"""
+                        logger.info(f"Using query with context ({len(user_history)} messages)")
                     else:
                         query_with_context = last_user_message
                         logger.info("No history - using direct query")
