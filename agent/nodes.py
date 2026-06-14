@@ -1,6 +1,6 @@
 from agent.config import MODEL_NAME, TEMPERATURE, OPENAI_API_KEY
 from langchain_openai import ChatOpenAI
-from langchain_core.messages import HumanMessage
+from langchain_core.messages import HumanMessage, AIMessage
 from agent.prompts import classify_user_message_prompt, generate_general_response_prompt, generate_macroeconomics_response_prompt
 from logger import logger
 
@@ -160,9 +160,8 @@ class MacroeconomicsNodes:
                 gpt_time = time.time() - gpt_start
                 logger.info(f"Standard GPT completed in {gpt_time:.2f} seconds")
 
-            # Δημιουργία του response message
             logger.info("Creating response message...")
-            response_message = HumanMessage(content=final_response)
+            response_message = AIMessage(content=final_response)
             state.messages.append(response_message)
             state.question = last_user_message
             
@@ -183,12 +182,12 @@ class MacroeconomicsNodes:
                 )
                 fallback_response += f"\n\n---\n **Σημείωση:** Υπήρξε πρόβλημα με το σύστημα ({str(e)}), χρησιμοποιήθηκε γενική γνώση."
                 
-                response_message = HumanMessage(content=fallback_response)
+                response_message = AIMessage(content=fallback_response)
                 state.messages.append(response_message)
                 state.question = state.messages[-2].content
             except Exception as fallback_error:
                 logger.error(f"Even fallback failed: {fallback_error}")
-                error_message = HumanMessage(content="Συγγνώμη, υπήρξε ένα πρόβλημα με την επεξεργασία της ερώτησής σου. Παρακαλώ δοκίμασε ξανά.")
+                error_message = AIMessage(content="Συγγνώμη, υπήρξε ένα πρόβλημα με την επεξεργασία της ερώτησής σου. Παρακαλώ δοκίμασε ξανά.")
                 state.messages.append(error_message)
             
         return state
@@ -215,5 +214,5 @@ class MacroeconomicsNodes:
     def fallback(self, state):
         """Fallback response."""
         logger.info("Fallback response")
-        state.messages.append(HumanMessage(content="Δυστυχώς δεν ήταν δυνατό να βρω την απάντηση στην ερώτηση σου, παρακαλώ προσπάθησε να δώσεις μια πιο συγκεκριμένη ερώτηση."))
+        state.messages.append(AIMessage(content="Δυστυχώς δεν ήταν δυνατό να βρω την απάντηση στην ερώτηση σου, παρακαλώ προσπάθησε να δώσεις μια πιο συγκεκριμένη ερώτηση."))
         return state
